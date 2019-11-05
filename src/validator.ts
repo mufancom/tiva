@@ -3,8 +3,9 @@ import * as _ from 'lodash';
 import {LanguageServiceHelper} from './language-service-helper';
 
 export interface ValidatorConfigOptions {
-  project: string;
-  fileName: string;
+  optionsFileName: string;
+  projectPath: string;
+  module: string | undefined;
   typeName: string;
   extensions?: {[key: string]: Function};
 }
@@ -24,11 +25,7 @@ export class Validator {
 
   constructor(validatorConfigOptions: ValidatorConfigOptions) {
     const config = validatorConfigOptions;
-    const optionsPath = (this.optionsPath = config.project);
-
-    if (config.fileName === undefined) {
-      throw new Error('file name is not specified.');
-    }
+    const optionsPath = (this.optionsPath = config.optionsFileName);
 
     if (config.typeName === undefined) {
       throw new Error('type name is not specified');
@@ -37,7 +34,7 @@ export class Validator {
     if (!Validator.optionsPathTolanguageServiceHelperMap.has(optionsPath)) {
       Validator.optionsPathTolanguageServiceHelperMap.set(
         optionsPath,
-        new LanguageServiceHelper(optionsPath),
+        new LanguageServiceHelper(config.projectPath, optionsPath),
       );
     }
 
@@ -46,7 +43,7 @@ export class Validator {
     )!;
 
     this.fileId = languageServiceHelper.add(
-      config.fileName,
+      config.module,
       config.typeName,
       config.extensions,
     );

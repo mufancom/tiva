@@ -1,37 +1,52 @@
 import * as Path from 'path';
+import * as FS from 'fs';
 
 import {Validator, ValidatorConfigOptions} from './validator';
 
 import {parentPort} from 'worker_threads';
 
-let configFileNameToValidatorMap: Map<string, Validator> = new Map();
+let validators: Validator[] = [];
 
 parentPort!.on('message', message => {
   if (message.type === 'init') {
-    if (configFileNameToValidatorMap.has(message.configFileName)) {
-      return;
-    }
-
     try {
-      let configFileName = message.configFileName;
-      let config = require(configFileName) as ValidatorConfigOptions;
-      let projectPath = Path.dirname(configFileName);
+      let extensions = require(message.extensionsFileName);
+      let config = message.config;
 
-      config.fileName = Path.resolve(projectPath, config.fileName);
+      let projectIsDirectory = FS.lstatSync(config.project).isDirectory();
+      let validatorConfig: ValidatorConfigOptions = {
+        module: config.module,
+        typeName: config.typeName,
+        optionsFileName: projectIsDirectory
+          ? Path.resolve(__dirname, '../assets/default-tsconfig.json')
+          : config.project,
+        projectPath: projectIsDirectory
+          ? config.project
+          : Path.dirname(config.project),
+        extensions: extensions,
+      };
 
-      config.project = Path.resolve(projectPath, config.project);
+      validators.push(new Validator(validatorConfig));
 
-      configFileNameToValidatorMap.set(configFileName, new Validator(config));
+      parentPort!.postMessage({
+        type: 'init-end',
+        validatorId: validators.length - 1,
+        helperId: message.helperId,
+      });
     } catch (e) {
       parentPort!.postMessage({
         type: 'init-error',
+        helperId: message.helperId,
         errorText: e.toString(),
       });
     }
   } else {
-    if (!configFileNameToValidatorMap.has(message.configFileName)) {
+    let id = message.validatorId;
+
+    if (!isNumber(id) || id < 0 || id >= validators.length) {
       parentPort!.postMessage({
         type: 'error',
+        validatorId: id,
         errorText: "Perhaps you haven't initialized the validator",
       });
 
@@ -39,18 +54,22 @@ parentPort!.on('message', message => {
     }
 
     try {
-      configFileNameToValidatorMap
-        .get(message.configFileName)!
-        .validate(message.obj);
+      validators[id].validate(message.obj);
 
       parentPort!.postMessage({
         type: 'success',
+        validatorId: id,
       });
     } catch (e) {
       parentPort!.postMessage({
         type: 'error',
+        validatorId: id,
         errorText: e.toString(),
       });
     }
   }
 });
+
+function isNumber(value: any) {
+  return typeof value === 'number' && isFinite(value);
+}

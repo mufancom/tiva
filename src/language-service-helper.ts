@@ -35,6 +35,7 @@ import {
   isArrayLiteralExpression,
   SyntaxKind,
   isLiteralTypeNode,
+  ResolvedModuleFull,
 } from 'typescript';
 
 interface LanguageServiceInfo {
@@ -68,19 +69,26 @@ export class LanguageServiceHelper {
 
   readonly optionsPath: string;
 
+  /** @internal */
   scriptFileNames: string[] = [];
 
-  scriptFileInfos: LanguageServiceInfo[] = [];
+  /** @internal */
+  scriptFileNameToScriptFileInfoMap: Map<
+    string,
+    LanguageServiceInfo
+  > = new Map();
 
   projectPath: string;
+
+  validatingFileName: string = '';
 
   /** @internal */
   private typeChecker: TypeChecker | undefined;
 
-  constructor(optionsPath: string) {
+  constructor(projectPath: string, optionsPath: string) {
     this.optionsPath = optionsPath;
 
-    this.projectPath = Path.dirname(optionsPath);
+    this.projectPath = projectPath;
 
     const {options: compilerOptions} = parseJsonConfigFileContent(
       require(optionsPath),
@@ -94,23 +102,21 @@ export class LanguageServiceHelper {
     );
 
     const serviceHost: LanguageServiceHost = {
-      getScriptFileNames: () => {
-        return this.scriptFileNames;
-      },
+      getScriptFileNames: () => [this.validatingFileName],
       getScriptVersion: (fileName: string) => {
-        for (let i = 0; i < this.scriptFileNames.length; ++i) {
-          if (fileName === this.scriptFileNames[i]) {
-            return this.scriptFileInfos[i].version.toString();
-          }
+        if (fileName === this.validatingFileName) {
+          return this.scriptFileNameToScriptFileInfoMap
+            .get(fileName)!
+            .version.toString();
         }
 
         return '0';
       },
       getScriptSnapshot: fileName => {
-        for (let i = 0; i < this.scriptFileNames.length; ++i) {
-          if (fileName === this.scriptFileNames[i]) {
-            return ScriptSnapshot.fromString(this.scriptFileInfos[i].content);
-          }
+        if (fileName === this.validatingFileName) {
+          return ScriptSnapshot.fromString(
+            this.scriptFileNameToScriptFileInfoMap.get(fileName)!.content,
+          );
         }
 
         try {
@@ -119,104 +125,47 @@ export class LanguageServiceHelper {
           return undefined;
         }
       },
-      getCurrentDirectory: () => {
-        return this.projectPath;
-      },
-      getCompilationSettings() {
-        return compilerOptions;
-      },
-      getDefaultLibFileName(options) {
-        return getDefaultLibFilePath(options);
-      },
-      resolveModuleNames: (
-        moduleNames: string[],
-        containingFile: string,
-        _reusedNames: string[] | undefined,
-        _redirectedReference: ResolvedProjectReference | undefined,
-        options: CompilerOptions,
-      ): (ResolvedModule | undefined)[] => {
-        const resolvedModules: ResolvedModule[] = [];
-
-        for (const moduleName of moduleNames) {
-          let result = resolveModuleName(moduleName, containingFile, options, {
-            fileExists: sys.fileExists,
-            readFile: sys.readFile,
-          });
-
-          if (result.resolvedModule) {
-            resolvedModules.push(result.resolvedModule);
-          } else {
-            if (/\.(css|svg)$/.test(moduleName)) {
-              resolvedModules.push({
-                resolvedFileName: `${this.projectPath}/tsconfig.json`,
-              }); // TODO: push 一个空对象？
-
-              continue;
-            }
-
-            let moduleSearchLocations: string[] = [];
-
-            let nodeModulesDirname = this.projectPath;
-
-            while (1) {
-              let path = Path.join(
-                nodeModulesDirname,
-                'node_modules/@types/node',
-              );
-
-              if (FS.existsSync(path)) {
-                moduleSearchLocations.push(path);
-
-                break;
-              }
-
-              let nextNodeModulesDirname = Path.resolve(
-                nodeModulesDirname,
-                '..',
-              );
-
-              if (nodeModulesDirname === nextNodeModulesDirname) {
-                break;
-              }
-
-              nodeModulesDirname = nextNodeModulesDirname;
-            }
-
-            for (const location of moduleSearchLocations) {
-              const modulePath = Path.join(location, moduleName + '.d.ts');
-
-              if (sys.fileExists(modulePath)) {
-                resolvedModules.push({resolvedFileName: modulePath});
-              }
-            }
-          }
-        }
-        return resolvedModules;
-      },
+      getCurrentDirectory: () => this.projectPath,
+      getCompilationSettings: () => compilerOptions,
+      getDefaultLibFileName: options => getDefaultLibFilePath(options),
+      resolveModuleNames: buildResolveModuleNamesWhenModuleSpecified(
+        this.projectPath,
+      ),
     };
 
     this.languageService = createLanguageService(
       serviceHost,
-      createDocumentRegistry(),
+      // createDocumentRegistry(),
     );
   }
 
   add(
-    fileName: string,
+    moduleName: string | undefined,
     typeName: string,
     extensions?: {[key: string]: Function} | undefined,
   ): number {
-    this.scriptFileNames.push(this.getUniqueFileName(fileName));
+    let uniqueFileName: string | undefined;
+    let content: string | undefined;
 
-    let content = FS.readFileSync(fileName).toString();
+    if (moduleName) {
+      uniqueFileName = this.getUniqueFileName(moduleName);
 
-    this.scriptFileInfos.push({
+      content = FS.readFileSync(moduleName).toString();
+    } else {
+      uniqueFileName = this.getUniqueFileNameByDirname(this.projectPath);
+
+      content = '';
+    }
+
+    this.scriptFileNameToScriptFileInfoMap.set(uniqueFileName, {
       version: 0,
       entryFileContent: content,
       content: content,
       typeName: typeName,
       extensions: extensions,
     });
+
+    this.scriptFileNames.push(uniqueFileName);
 
     return this.scriptFileNames.length - 1;
   }
@@ -228,11 +177,15 @@ export class LanguageServiceHelper {
 
     let json = JSON.stringify(obj);
 
-    this.scriptFileInfos[
-      id
-    ].content = `${this.scriptFileInfos[id].entryFileContent}\nexport const ____aaaa: ${this.scriptFileInfos[id].typeName} = ${json};`;
+    this.validatingFileName = this.scriptFileNames[id];
 
-    ++this.scriptFileInfos[id].version;
+    let scriptFileInfo = this.scriptFileNameToScriptFileInfoMap.get(
+      this.validatingFileName,
+    )!;
+
+    scriptFileInfo.content = `${scriptFileInfo.entryFileContent}\nexport const ____aaaa: ${scriptFileInfo.typeName} = ${json};`;
+
+    ++scriptFileInfo.version;
 
     let fileName = this.scriptFileNames[id];
 
@@ -256,8 +209,6 @@ export class LanguageServiceHelper {
       }
 
       this.typeChecker = program.getTypeChecker();
-
-      let scriptFileInfo = this.scriptFileInfos[id];
 
       if (
         scriptFileInfo.extensions &&
@@ -316,44 +267,47 @@ export class LanguageServiceHelper {
 
       return false;
     } else if (isIntersectionTypeNode(type)) {
-      let result = true;
-
       for (let childType of type.types) {
-        result = result && this.extensionsValidate(childType, node, extensions);
+        if (!this.extensionsValidate(childType, node, extensions)) {
+          return false;
+        }
       }
 
-      return result;
+      return true;
     } else if (
       (isInterfaceDeclaration(type) ||
         isTypeLiteralNode(type) ||
         isClassDeclaration(type)) &&
       isObjectLiteralExpression(node)
     ) {
-      let result = true;
+      for (let j = 0; j < node.properties.length; ++j) {
+        let nodePropertyName = node.properties[j].name;
 
-      for (let i = 0; i < type.members.length; ++i) {
-        for (let j = 0; j < node.properties.length; ++j) {
-          let typePropertyName = type.members[i].name;
-          let nodePropertyName = node.properties[j].name;
+        if (nodePropertyName) {
+          for (let i = 0; i < type.members.length; ++i) {
+            let typePropertyName = type.members[i].name;
 
-          if (typePropertyName && nodePropertyName) {
-            if (
-              typePropertyName.getText() ===
-              nodePropertyName.getText().replace(/"/g, '')
-            ) {
-              result =
-                result &&
-                this.extensionsValidate(
-                  type.members[i],
-                  node.properties[j],
-                  extensions,
-                );
+            if (typePropertyName) {
+              if (
+                typePropertyName.getText() ===
+                nodePropertyName.getText().replace(/"/g, '')
+              ) {
+                if (
+                  !this.extensionsValidate(
+                    type.members[i],
+                    node.properties[j],
+                    extensions,
+                  )
+                ) {
+                  return false;
+                }
+              }
             }
           }
         }
       }
 
-      return result;
+      return true;
     } else if (
       (isPropertySignature(type) || isPropertyDeclaration(type)) &&
       isPropertyAssignment(node)
@@ -423,9 +377,15 @@ export class LanguageServiceHelper {
 
   /** @internal */
   private getUniqueFileName(fileName: string): string {
+    let dirname = Path.dirname(fileName);
+    let originalFileNameSet = new Set(
+      FS.readdirSync(dirname).filter(
+        file => !FS.lstatSync(Path.join(dirname, file)).isDirectory(),
+      ),
+    );
     let uniqueFileName: string = this.generateRandomFileName(fileName);
 
-    while (!this.isUnique(uniqueFileName)) {
+    while (this.isNotUnique(uniqueFileName, originalFileNameSet)) {
       uniqueFileName = this.generateRandomFileName(fileName);
     }
 
@@ -433,14 +393,30 @@ export class LanguageServiceHelper {
   }
 
   /** @internal */
-  private isUnique(checkingfileName: string): boolean {
-    for (let fileName of this.scriptFileNames) {
-      if (checkingfileName === fileName) {
-        return false;
-      }
+  private getUniqueFileNameByDirname(dirname: string) {
+    let originalFileNameSet = new Set(
+      FS.readdirSync(dirname).filter(
+        file => !FS.lstatSync(Path.join(dirname, file)).isDirectory(),
+      ),
+    );
+    let uniqueFileName: string = this.generateRandomFileNameByDirname(dirname);
+
+    while (this.isNotUnique(uniqueFileName, originalFileNameSet)) {
+      uniqueFileName = this.generateRandomFileNameByDirname(dirname);
     }
 
-    return true;
+    return uniqueFileName;
+  }
+
+  /** @internal */
+  private isNotUnique(
+    checkingfileName: string,
+    originalFileNameSet: Set<string>,
+  ): boolean {
+    return (
+      this.scriptFileNameToScriptFileInfoMap.has(checkingfileName) ||
+      originalFileNameSet.has(checkingfileName)
+    );
   }
 
   /** @internal */
@@ -452,4 +428,80 @@ export class LanguageServiceHelper {
         .substring(2)}${Path.extname(fileName)}`,
     );
   }
+
+  /** @internal */
+  private generateRandomFileNameByDirname(dirname: string) {
+    return Path.join(
+      dirname,
+      `${Math.random()
+        .toString(36)
+        .substring(2)}.tsx`,
+    );
+  }
+}
+
+function buildResolveModuleNamesWhenModuleSpecified(projectPath: string) {
+  return (
+    moduleNames: string[],
+    containingFile: string,
+    _reusedNames: string[] | undefined,
+    _redirectedReference: ResolvedProjectReference | undefined,
+    options: CompilerOptions,
+  ): (ResolvedModule | undefined)[] => {
+    const resolvedModules: ResolvedModule[] = [];
+
+    for (const moduleName of moduleNames) {
+      let result = resolveModuleName(moduleName, containingFile, options, {
+        fileExists: sys.fileExists,
+        readFile: sys.readFile,
+      });
+
+      if (result.resolvedModule) {
+        resolvedModules.push(result.resolvedModule);
+      } else {
+        if (/\.(css|svg)$/.test(moduleName)) {
+          resolvedModules.push({
+            resolvedFileName: moduleName,
+            extension: '.ts',
+          } as ResolvedModuleFull);
+
+          continue;
+        }
+
+        let moduleSearchLocations: string[] = [];
+
+        let nodeModulesDirname = projectPath;
+
+        while (1) {
+          let path = Path.join(nodeModulesDirname, 'node_modules/@types/node');
+
+          if (FS.existsSync(path)) {
+            moduleSearchLocations.push(path);
+
+            break;
+          }
+
+          let nextNodeModulesDirname = Path.resolve(nodeModulesDirname, '..');
+
+          if (nodeModulesDirname === nextNodeModulesDirname) {
+            break;
+          }
+
+          nodeModulesDirname = nextNodeModulesDirname;
+        }
+
+        for (const location of moduleSearchLocations) {
+          const modulePath = Path.join(location, moduleName + '.d.ts');
+
+          if (sys.fileExists(modulePath)) {
+            resolvedModules.push({resolvedFileName: modulePath});
+
+            break;
+          }
+        }
+      }
+    }
+
+    return resolvedModules;
+  };
 }

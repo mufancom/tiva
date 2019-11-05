@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc --build ./src",
-    "test": "yarn build && node ./lib/index.js",
-    "bare-test": "node ./lib/index.js"
+    "test": "yarn build && node ./lib/validator-helper.js",
+    "bare-test": "node ./lib/validator-helper.js"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.144",
