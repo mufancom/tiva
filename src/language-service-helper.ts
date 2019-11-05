@@ -6,7 +6,6 @@ import {
   CompilerOptions,
   LanguageServiceHost,
   ScriptSnapshot,
-  createDocumentRegistry,
   createLanguageService,
   getDefaultLibFilePath,
   ResolvedProjectReference,
@@ -133,10 +132,7 @@ export class LanguageServiceHelper {
       ),
     };
 
-    this.languageService = createLanguageService(
-      serviceHost,
-      // createDocumentRegistry(),
-    );
+    this.languageService = createLanguageService(serviceHost);
   }
 
   add(
