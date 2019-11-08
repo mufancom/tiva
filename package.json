@@ -17,6 +17,6 @@
     "commander": "^3.0.2",
     "lodash": "^4.17.15",
     "tslib": "^1.10.0",
-    "typescript": "^3.8.0-dev.20191102"
+    "typescript": "^3.8.0-dev.20191105"
   }
 }

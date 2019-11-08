@@ -71,10 +71,10 @@ tslib@^1.10.0:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.10.0.tgz#c3c19f95973fb0a62973fb09d90d961ee43e5c8a"
   integrity sha512-qOebF53frne81cf0S9B41ByenJ3/IuH8yJKngAX35CmiZySA0khhkovshKK+jGCaMnVomla7gVlIcc3EvKPbTQ==
 
-typescript@^3.8.0-dev.20191102:
-  version "3.8.0-dev.20191102"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.8.0-dev.20191102.tgz#6e4a3fabca558530a1b4ca50d55e1287244d63ed"
-  integrity sha512-eCeAeDx/MD93qg/yjMUVM8ddIqQYalsY61wHv9NPZmBULVYGrRNeQVDfNbbi8CG+/Wnau3C5zFNDC2IkqqeWjg==
+typescript@^3.8.0-dev.20191105:
+  version "3.8.0-dev.20191105"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.8.0-dev.20191105.tgz#84936856168f081f8ffd67441c76f439c97fb9b7"
+  integrity sha512-bKujrrC0aQRihwWPuavqvlCArHqwXqGmUTwzpyojkTiHBMbfuuVxqM5fYDYLALe6B1eRGm5bFeNtFF/d/8CpCQ==
 
 yn@^3.0.0:
   version "3.1.1"

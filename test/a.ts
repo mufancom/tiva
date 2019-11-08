@@ -19,14 +19,15 @@ export interface MyType {
 
 export interface AA {
   t: 'a';
-  /** @pattern ^foo$ */
+  /** @bbuid AA comment */
   aa: string;
+  bb?: string;
 }
 
 export interface BB {
   t: 'b';
   /** @bbuid BB comment */
-  aa: number;
+  bb: number;
 }
 
-type AAA = AA | BB;
+export type AAA = AA | BB;

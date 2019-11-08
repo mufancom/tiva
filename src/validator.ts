@@ -1,58 +1,36 @@
 import * as _ from 'lodash';
+import {ProjectServiceHelper} from './project-service-helper';
 
-import {LanguageServiceHelper} from './language-service-helper';
+export type ExtensionsType = {[key: string]: Function};
 
 export interface ValidatorConfigOptions {
   optionsFileName: string;
   projectPath: string;
   module: string | undefined;
   typeName: string;
-  extensions?: {[key: string]: Function};
+  extensions?: ExtensionsType;
 }
 
 export class Validator {
   /** @internal */
-  private static optionsPathTolanguageServiceHelperMap: Map<
-    string,
-    LanguageServiceHelper
-  > = new Map();
+  private static projectServiceHelper: ProjectServiceHelper;
 
-  /** @internal */
-  private optionsPath: string;
-
-  /** @internal */
-  private fileId: number;
+  private config: ValidatorConfigOptions;
 
   constructor(validatorConfigOptions: ValidatorConfigOptions) {
-    const config = validatorConfigOptions;
-    const optionsPath = (this.optionsPath = config.optionsFileName);
-
-    if (config.typeName === undefined) {
+    if (validatorConfigOptions.typeName === undefined) {
       throw new Error('type name is not specified');
     }
 
-    if (!Validator.optionsPathTolanguageServiceHelperMap.has(optionsPath)) {
-      Validator.optionsPathTolanguageServiceHelperMap.set(
-        optionsPath,
-        new LanguageServiceHelper(config.projectPath, optionsPath),
-      );
+    this.config = validatorConfigOptions;
+
+    if (!Validator.projectServiceHelper) {
+      Validator.projectServiceHelper = new ProjectServiceHelper();
     }
-
-    let languageServiceHelper = Validator.optionsPathTolanguageServiceHelperMap.get(
-      optionsPath,
-    )!;
-
-    this.fileId = languageServiceHelper.add(
-      config.module,
-      config.typeName,
-      config.extensions,
-    );
   }
 
   validate(obj: object) {
-    Validator.optionsPathTolanguageServiceHelperMap
-      .get(this.optionsPath)!
-      .validate(this.fileId, obj);
+    Validator.projectServiceHelper.validate(this.config, obj);
   }
 
   test(obj: object): boolean {
