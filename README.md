@@ -1,3 +1,6 @@
+[![NPM Package](https://badge.fury.io/js/tiva.svg)](https://www.npmjs.com/package/tiva)
+[![Build Status](https://travis-ci.org/makeflow/tiva.svg?branch=master)](https://travis-ci.org/makeflow/tiva)
+
 # Tiva
 
 🤧 EXPENSIVE plain object type validator leverages TypeScript language service.
