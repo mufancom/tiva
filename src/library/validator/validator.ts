@@ -151,8 +151,6 @@ export class Validator {
       .filter((part): part is string => !!part)
       .join('\n');
 
-    console.log(scriptContent);
-
     let scriptInfo = this.scriptInfo;
 
     scriptInfo.editContent(
