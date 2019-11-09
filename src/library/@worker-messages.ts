@@ -1,4 +1,4 @@
-import {ValidatorOptions} from './validator';
+import {ValidatorOptions, GeneralValidatorTypeOptions} from './validator';
 
 export type Request = InitializeRequest | DiagnoseRequest;
 
@@ -9,7 +9,7 @@ export interface InitializeRequest {
 
 export interface DiagnoseRequest {
   type: 'diagnose';
-  typeName: string;
+  typeOptions: GeneralValidatorTypeOptions;
   value: unknown;
 }
 

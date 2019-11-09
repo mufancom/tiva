@@ -3,7 +3,7 @@ import * as Path from 'path';
 import {Worker} from 'worker_threads';
 
 import {InitializeRequest, Response, DiagnoseRequest} from './@worker-messages';
-import {ValidatorOptions} from './validator';
+import {ValidatorOptions, GeneralValidatorTypeOptions} from './validator';
 
 export interface TivaOptions extends ValidatorOptions {}
 
@@ -15,7 +15,7 @@ export class Tiva extends EventEmitter {
     (error: Error) => void,
   ][] = [];
 
-  constructor(options: TivaOptions) {
+  constructor(options: TivaOptions = {}) {
     super();
 
     this.worker.on('message', (response: Response) => {
@@ -42,7 +42,10 @@ export class Tiva extends EventEmitter {
     this.nextRequest().catch(error => this.emit('error', error));
   }
 
-  async validate(type: string, object: unknown): Promise<void> {
+  async validate(
+    type: GeneralValidatorTypeOptions,
+    object: unknown,
+  ): Promise<void> {
     let messages = await this.diagnose(type, object);
 
     if (messages) {
@@ -50,14 +53,20 @@ export class Tiva extends EventEmitter {
     }
   }
 
-  async test(type: string, object: unknown): Promise<boolean> {
+  async test(
+    type: GeneralValidatorTypeOptions,
+    object: unknown,
+  ): Promise<boolean> {
     return !(await this.diagnose(type, object));
   }
 
-  async diagnose(type: string, value: unknown): Promise<string[] | undefined> {
+  async diagnose(
+    type: GeneralValidatorTypeOptions,
+    value: unknown,
+  ): Promise<string[] | undefined> {
     let request: DiagnoseRequest = {
       type: 'diagnose',
-      typeName: type,
+      typeOptions: type,
       value,
     };
 

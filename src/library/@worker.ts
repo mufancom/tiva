@@ -26,7 +26,7 @@ parentPort!.on('message', (request: Request) => {
       }
 
       case 'diagnose': {
-        let reasons = validator.diagnose(request.typeName, request.value);
+        let reasons = validator.diagnose(request.typeOptions, request.value);
 
         let response: DiagnoseResponse = {
           type: 'diagnose',

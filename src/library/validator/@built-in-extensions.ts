@@ -52,22 +52,22 @@ export const builtInExtensions: ValidatorExtensions<BuiltInValidatorExtensionCon
 
     return undefined;
   },
-  unique(value, tag = '', context) {
+  unique(value, group = '', context) {
     let {uniqueSetMap} = context;
 
     if (!uniqueSetMap) {
       uniqueSetMap = context.uniqueSetMap = new Map();
     }
 
-    let uniqueSet = uniqueSetMap.get(tag);
+    let uniqueSet = uniqueSetMap.get(group);
 
     if (!uniqueSet) {
       uniqueSet = new Set();
-      uniqueSetMap.set(tag, uniqueSet);
+      uniqueSetMap.set(group, uniqueSet);
     }
 
     if (uniqueSet.has(value)) {
-      return `Duplicate ${tag || 'value'} ${JSON.stringify(value)}`;
+      return `Duplicate ${group || 'value'} ${JSON.stringify(value)}`;
     }
 
     uniqueSet.add(value);

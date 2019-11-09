@@ -1,27 +1,49 @@
-# tiva
+# Tiva
 
-## Examples
+🤧 EXPENSIVE plain object type validator leverages TypeScript language service.
+
+## Usage
+
+```
+yarn add tiva
+```
 
 ```ts
-const validatorHelper = new ValidatorHelper(
-  {
-    project: Path.resolve(__dirname, '../test/tsconfig.json'),
-    module: Path.resolve(__dirname, '../test/a.ts'),
-    typeName: 'AAA',
-  },
-  Path.resolve(__dirname, '../test/config.js'),
-);
+import {Tiva} from 'tiva';
 
-validatorHelper.validate(
-  {
-    t: 'b',
-    aa: 2,
-  },
-  message => {
-    console.log('caller rejcet: ' + message.toString());
-  },
-  message => {
-    console.log('caller resolve: ' + message);
-  },
-);
+let tiva = new Tiva();
+
+tiva.validate('string[]', ['foo', 'bar']).then(console.info, console.error);
+
+tiva
+  .validate(
+    {module: 'module-specifier', type: 'AwesomeType'},
+    {foo: 'abc', bar: 123},
+  )
+  .then(console.info, console.error);
 ```
+
+## Extensions
+
+Tiva can validate with extended validator functions that matches by `@tag` in JSDoc comments:
+
+```ts
+interface Foo {
+  /** @uuid */
+  id: string;
+}
+```
+
+There are a few built-in extensions:
+
+- `@pattern <pattern>` Validate by regular expression pattern.
+- `@uuid [version]` UUID.
+- `@unique [group]` Validate that there's no more than one occurrence.
+
+Checkout [@built-in-extensions.ts](src/library/validator/@built-in-extensions.ts) for implementation details.
+
+Custom extensions can be provided by `options.extensions` of `Tiva` constructor.
+
+## License
+
+MIT License.

@@ -33,6 +33,13 @@ import {logger, serverHost, getDeepestMessageText} from '../@typescript';
 
 import {builtInExtensions} from './@built-in-extensions';
 
+export type GeneralValidatorTypeOptions = string | ValidatorTypeOptions;
+
+export interface ValidatorTypeOptions {
+  module: string;
+  type: string;
+}
+
 /**
  * @returns A string that describes the mismatch or `undefined` for valid
  * value.
@@ -49,7 +56,6 @@ export type ValidatorExtensions<TContext extends object = object> = Dict<
 
 export interface ValidatorOptions {
   project?: string;
-  module?: string;
   extensions?: ValidatorExtensions;
   compilerOptions?: server.protocol.ExternalProjectCompilerOptions;
 }
@@ -124,18 +130,28 @@ export class Validator {
     this.languageService = this.project.getLanguageService(true);
   }
 
-  diagnose(type: string, object: unknown): string[] | undefined {
-    let {module: moduleIdentifier} = this.options;
+  diagnose(
+    type: GeneralValidatorTypeOptions,
+    value: unknown,
+  ): string[] | undefined {
+    let moduleSpecifier: string | undefined;
+
+    if (typeof type !== 'string') {
+      moduleSpecifier = type.module;
+      type = type.type;
+    }
 
     let scriptContent = [
-      moduleIdentifier &&
+      moduleSpecifier &&
         `import {${type.match(/^[^.]+/)![0]}} from ${JSON.stringify(
-          moduleIdentifier,
+          moduleSpecifier,
         )};`,
-      `export const __tiva: ${type} = ${JSON.stringify(object)};`,
+      `export const __tiva: ${type} = ${JSON.stringify(value)};`,
     ]
       .filter((part): part is string => !!part)
       .join('\n');
+
+    console.log(scriptContent);
 
     let scriptInfo = this.scriptInfo;
 
