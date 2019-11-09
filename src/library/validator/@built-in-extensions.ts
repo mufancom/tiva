@@ -3,7 +3,6 @@ import {isUUID} from 'validator';
 import {ValidatorExtensions} from './validator';
 
 export interface BuiltInValidatorExtensionContext {
-  uuidSet?: Set<string>;
   uniqueSetMap?: Map<string, Set<unknown>>;
 }
 
@@ -27,7 +26,7 @@ export const builtInExtensions: ValidatorExtensions<BuiltInValidatorExtensionCon
 
     return undefined;
   },
-  uuid(value, version: '3' | '4' | '5' | 'all' | undefined, context) {
+  uuid(value, version: '3' | '4' | '5' | 'all' | undefined) {
     if (typeof value !== 'string') {
       return undefined;
     }
@@ -37,18 +36,6 @@ export const builtInExtensions: ValidatorExtensions<BuiltInValidatorExtensionCon
         version && version !== 'all' ? ` (v${version})` : ''
       }`;
     }
-
-    let {uuidSet} = context;
-
-    if (!uuidSet) {
-      uuidSet = context.uuidSet = new Set();
-    }
-
-    if (uuidSet.has(value)) {
-      return `Duplicate UUID ${JSON.stringify(value)}`;
-    }
-
-    uuidSet.add(value);
 
     return undefined;
   },
