@@ -1,5 +1,22 @@
+# Installable packages
+
 node_modules/
 
-yarn-error.log
+# Configuration
 
-lib/
+.config/
+
+# Building artifacts
+
+bld/
+dist/
+.cache/
+*.tgz
+
+# Debugging outputs
+
+*.log
+
+# Testing files
+
+/test.*

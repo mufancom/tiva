@@ -1,0 +1,11 @@
+{
+  "extends": "@magicspace/configs/tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+
+    "sourceMap": true,
+
+    "rootDir": ".",
+    "outDir": "../../bld/library"
+  }
+}

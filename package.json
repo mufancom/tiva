@@ -1,22 +1,29 @@
 {
-  "name": "detector",
+  "name": "tiva",
   "version": "0.1.0",
-  "main": "lib/index.js",
+  "main": "bld/library/index.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc --build ./src",
-    "test": "yarn build && node ./lib/validator-helper.js",
-    "bare-test": "node ./lib/validator-helper.js"
+    "build": "tsc --project src/library",
+    "lint-prettier": "prettier --check \"**/*.{ts,tsx,js,jsx,json,yml,md}\"",
+    "lint-ts": "eslint 'src/**/*.ts'",
+    "lint": "yarn lint-prettier && yarn lint-ts",
+    "test": "rimraf bld && yarn build && yarn lint"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.144",
+    "@magicspace/configs": "^0.2.1",
+    "@magicspace/eslint-plugin": "^0.1.2",
     "@types/node": "^12.12.3",
-    "ts-node": "^8.4.1"
+    "@types/validator": "^10.11.3",
+    "eslint": "^6.6.0",
+    "eslint-config-prettier": "^6.5.0",
+    "prettier": "^1.19.0"
   },
   "dependencies": {
-    "commander": "^3.0.2",
-    "lodash": "^4.17.15",
+    "tslang": "^0.1.18",
     "tslib": "^1.10.0",
-    "typescript": "^3.8.0-dev.20191105"
+    "tsutils": "^3.17.1",
+    "typescript": "3.8.0-dev.20191105",
+    "validator": "^12.0.0"
   }
 }
