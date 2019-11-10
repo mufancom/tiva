@@ -21,12 +21,11 @@
     "bld/library"
   ],
   "devDependencies": {
-    "@magicspace/configs": "^0.2.1",
+    "@magicspace/configs": "^0.2.2",
     "@magicspace/eslint-plugin": "^0.1.2",
     "@types/node": "^12.12.3",
     "@types/validator": "^10.11.3",
     "eslint": "^6.6.0",
-    "eslint-config-prettier": "^6.5.0",
     "prettier": "^1.19.0"
   },
   "dependencies": {

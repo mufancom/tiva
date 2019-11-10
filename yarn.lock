@@ -18,10 +18,12 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@magicspace/configs@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@magicspace/configs/-/configs-0.2.1.tgz#ea47c5c53c203e30dcd5895552a6e134a2adbb33"
-  integrity sha512-ZNMJ/u3Zin4juIfHfSMODPa50oR0w53M5uad2a/v8sVrqEN2cubQGQO/Q7XBPxjri8KYFyew1BpFrMz/WrgMpA==
+"@magicspace/configs@^0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@magicspace/configs/-/configs-0.2.2.tgz#52e4db8c1dd5e3d3699d95a863d9e638447d4ac6"
+  integrity sha512-b5nE4cYCrtPQv1FoyTokfZPOpJghhtuSuMdsqPb6MJGGvSxIceLhuZFla4CvF1VQXOUuKvUWhuVvT+rT3w1aKA==
+  dependencies:
+    eslint-config-prettier "^6.5.0"
 
 "@magicspace/eslint-plugin@^0.1.2":
   version "0.1.2"

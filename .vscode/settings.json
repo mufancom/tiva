@@ -21,5 +21,10 @@
       "autoFix": true
     }
   ],
-  "eslint.autoFixOnSave": true
+  "eslint.autoFixOnSave": true,
+  "eslint.options": {
+    "rules": {
+      "import/no-deprecated": "off"
+    }
+  }
 }
