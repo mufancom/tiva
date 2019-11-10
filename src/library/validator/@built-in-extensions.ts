@@ -39,7 +39,11 @@ export const builtInExtensions: ValidatorExtensions<BuiltInValidatorExtensionCon
 
     return undefined;
   },
-  unique(value, group = '', context) {
+  unique(value, group, context, tagUniqueId) {
+    if (!group) {
+      group = tagUniqueId;
+    }
+
     let {uniqueSetMap} = context;
 
     if (!uniqueSetMap) {

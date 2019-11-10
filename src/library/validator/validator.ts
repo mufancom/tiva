@@ -48,6 +48,7 @@ export type ValidatorExtension<TContext extends object = object> = (
   value: unknown,
   comment: string | undefined,
   context: TContext,
+  tagUniqueId: string,
 ) => string | undefined;
 
 export type ValidatorExtensions<TContext extends object = object> = Dict<
@@ -222,8 +223,11 @@ export class Validator {
         for (let value of values) {
           for (let [tag, extension] of tagExtensionPairs) {
             let comment = tag.comment;
+            let tagUniqueId = `${
+              tag.getSourceFile().fileName
+            }:${tag.getStart()}`;
 
-            let reason = extension(value, comment, this.context);
+            let reason = extension(value, comment, this.context, tagUniqueId);
 
             if (typeof reason === 'string') {
               extensionReasons.push(reason);
