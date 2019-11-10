@@ -3,7 +3,7 @@
 
 # Tiva
 
-🤧 EXPENSIVE plain object type validator leverages TypeScript language service.
+⏱️ EXPENSIVE plain object type validator leverages TypeScript language service.
 
 ## Usage
 
