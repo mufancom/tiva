@@ -40,6 +40,8 @@ export const builtInExtensions: ValidatorExtensions<BuiltInValidatorExtensionCon
     return undefined;
   },
   unique(value, group, context, tagUniqueId) {
+    let groupName = group || 'value';
+
     if (!group) {
       group = tagUniqueId;
     }
@@ -58,7 +60,7 @@ export const builtInExtensions: ValidatorExtensions<BuiltInValidatorExtensionCon
     }
 
     if (uniqueSet.has(value)) {
-      return `Duplicate ${group || 'value'} ${JSON.stringify(value)}`;
+      return `Duplicate ${groupName} ${JSON.stringify(value)}`;
     }
 
     uniqueSet.add(value);
