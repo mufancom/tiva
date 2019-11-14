@@ -12,7 +12,7 @@
     "lint-prettier": "prettier --with-node-modules --check \"**/*.{ts,tsx,js,jsx,json,yml,md}\"",
     "lint-ts": "eslint \"src/**/*.ts\"",
     "lint": "yarn lint-prettier && yarn lint-ts",
-    "test": "rimraf bld && yarn build && yarn lint",
+    "test": "rimraf bld && yarn build && yarn lint && yarn jest",
     "report-coverage": "cat coverage/lcov.info | coveralls"
   },
   "main": "bld/library/index.js",
