@@ -11,5 +11,8 @@ export interface Patterns {
    */
   number: string;
 
+  /** @custom */
+  custom: string;
+
   subs: SubPatterns<Sub>[];
 }

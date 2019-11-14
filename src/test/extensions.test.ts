@@ -12,6 +12,13 @@ let validatorGlobal = new Validator({
 
 let validatorModule = new Validator({
   project: Path.join(__dirname, 'cases/extensions-case-2'),
+  extensions: {
+    custom(value) {
+      return value === 'custom'
+        ? undefined
+        : `Value "${value}" must be "custom"`;
+    },
+  },
 });
 
 it('should diagnose extensions defined in global types', () => {
@@ -68,6 +75,7 @@ it('should diagnose extensions defined in module types', () => {
       {
         mention: 'Yoha @you.',
         number: '123',
+        custom: 'custom',
         subs: [
           {
             id: 'fff',
@@ -92,6 +100,7 @@ it('should diagnose extensions defined in module types', () => {
       {
         mention: 'nope',
         number: 'x123',
+        custom: 'yoha',
         subs: [
           {
             id: '@#$',
@@ -113,6 +122,7 @@ it('should diagnose extensions defined in module types', () => {
     Array [
       "Value \\"nope\\" does not match pattern @\\\\w+",
       "Value \\"x123\\" does not match pattern ^\\\\d+$",
+      "Value \\"yoha\\" must be \\"custom\\"",
       "Value \\"@#$\\" does not match pattern ^\\\\w+$",
       "Duplicate value \\"fff\\"",
       "Value \\" \\" does not match pattern ^\\\\S+$",
