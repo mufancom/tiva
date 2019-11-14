@@ -1,3 +1,7 @@
-**/bld/**
+node_modules/**
+
+bld/**
+.bld-cache/**
+coverage/**
 
 package.json

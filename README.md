@@ -1,5 +1,6 @@
 [![NPM Package](https://badge.fury.io/js/tiva.svg)](https://www.npmjs.com/package/tiva)
 [![Build Status](https://travis-ci.org/makeflow/tiva.svg?branch=master)](https://travis-ci.org/makeflow/tiva)
+[![Coverage Status](https://coveralls.io/repos/github/makeflow/tiva/badge.svg?branch=master)](https://coveralls.io/github/makeflow/tiva?branch=master)
 
 # Tiva
 

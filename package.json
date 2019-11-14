@@ -8,25 +8,31 @@
     "url": "https://github.com/makeflow/tiva.git"
   },
   "scripts": {
-    "build": "tsc --project src/library",
-    "lint-prettier": "prettier --check \"**/*.{ts,tsx,js,jsx,json,yml,md}\"",
-    "lint-ts": "eslint 'src/**/*.ts'",
+    "build": "tsc --build",
+    "lint-prettier": "prettier --with-node-modules --check \"**/*.{ts,tsx,js,jsx,json,yml,md}\"",
+    "lint-ts": "eslint \"src/**/*.ts\"",
     "lint": "yarn lint-prettier && yarn lint-ts",
-    "test": "rimraf bld && yarn build && yarn lint"
+    "test": "rimraf bld && yarn build && yarn lint",
+    "report-coverage": "cat coverage/lcov.info | coveralls"
   },
   "main": "bld/library/index.js",
   "types": "bld/library/index.d.ts",
   "files": [
     "src/library/**/*.ts",
-    "bld/library"
+    "bld/library",
+    "!*.tsbuildinfo"
   ],
   "devDependencies": {
     "@magicspace/configs": "^0.2.2",
-    "@magicspace/eslint-plugin": "^0.1.2",
+    "@magicspace/eslint-plugin": "^0.1.4",
+    "@types/jest": "^24.0.23",
     "@types/node": "^12.12.3",
     "@types/validator": "^10.11.3",
+    "coveralls": "^3.0.7",
     "eslint": "^6.6.0",
-    "prettier": "^1.19.0"
+    "jest": "^24.9.0",
+    "prettier": "^1.19.0",
+    "ts-jest": "^24.1.0"
   },
   "dependencies": {
     "tslang": "^0.1.18",

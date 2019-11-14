@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 import {sys, server, FileWatcher} from 'typescript/lib/tsserverlibrary';
 
 const NOOP_FILE_WATCHER: FileWatcher = {

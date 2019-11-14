@@ -39,7 +39,10 @@ export class Tiva extends EventEmitter {
 
     this.worker.postMessage(initializeRequest);
 
-    this.nextRequest().catch(error => this.emit('error', error));
+    this.nextRequest().catch(
+      /* istanbul ignore next */
+      error => this.emit('error', error),
+    );
   }
 
   async validate(
@@ -87,6 +90,7 @@ export class Tiva extends EventEmitter {
   ): void {
     let handlers = this.requestPromiseHandlers.shift();
 
+    /* istanbul ignore else */
     if (handlers) {
       let [resolve, reject] = handlers;
 

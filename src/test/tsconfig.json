@@ -1,0 +1,16 @@
+{
+  "extends": "@magicspace/configs/tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+
+    "types": [
+      "node",
+      "jest",
+      "./cases/module-type-case-1",
+      "./cases/extensions-case-1",
+      "./cases/extensions-case-2"
+    ],
+
+    "outDir": "../../.bld-cache/test"
+  }
+}

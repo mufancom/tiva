@@ -1,9 +1,8 @@
 import * as Path from 'path';
 
-import {getTokenAtPosition} from 'tsutils';
+import {getTokenAtPosition, getJsDoc} from 'tsutils';
 import {Dict} from 'tslang';
 import {
-  getJSDocTags,
   isArrayTypeNode,
   isClassDeclaration,
   isConditionalTypeNode,
@@ -18,7 +17,6 @@ import {
   isTypeLiteralNode,
   isTypeReferenceNode,
   isUnionTypeNode,
-  JSDocTag,
   LanguageService,
   Node,
   Program,
@@ -95,7 +93,7 @@ export class Validator {
 
   private context!: object;
 
-  constructor(private options: ValidatorOptions) {
+  constructor(private options: ValidatorOptions = {}) {
     this.projectService = new server.ProjectService({
       host: serverHost,
       cancellationToken: server.nullCancellationToken,
@@ -120,6 +118,7 @@ export class Validator {
 
     let scriptInfo = this.projectService.getScriptInfo(this.validatorFilePath);
 
+    /* istanbul ignore if */
     if (!scriptInfo) {
       throw new Error('Expecting script info present');
     }
@@ -209,23 +208,44 @@ export class Validator {
     if (isPropertySignature(node) || isPropertyDeclaration(node)) {
       let extensionMap = this.extensionMap;
 
-      let tags = getJSDocTags(node);
+      interface DocTag {
+        name: string;
+        comment: string | undefined;
+      }
+
+      let tags = getJsDoc(node).flatMap((doc): DocTag[] => {
+        let text = doc.getText();
+
+        let tags: DocTag[] = [];
+
+        let regex = /^(?:\/\*\*[ \t]*|[ \t]*(?:\*[ \t]*)?)@([\w-]+)(?:[ \t]+((?:(?!\*\/$).)+?))?\s*?(?:\*\/)?$/gm;
+
+        let group: RegExpExecArray | null;
+
+        // eslint-disable-next-line no-cond-assign
+        while ((group = regex.exec(text))) {
+          tags.push({
+            name: group[1],
+            comment: group[2],
+          });
+        }
+
+        return tags;
+      });
 
       let tagExtensionPairs = tags
-        .map(tag => [tag, extensionMap.get(tag.tagName.getText())])
-        .filter((pair): pair is [JSDocTag, ValidatorExtension] => !!pair[1]);
+        .map(tag => [tag, extensionMap.get(tag.name)])
+        .filter((pair): pair is [DocTag, ValidatorExtension] => !!pair[1]);
 
       if (tagExtensionPairs.length) {
         let extensionReasons = this.extensionReasons;
 
+        let sourceFileName = node.getSourceFile().fileName;
         let values = this.findValuesByDefinition(node);
 
         for (let value of values) {
-          for (let [tag, extension] of tagExtensionPairs) {
-            let comment = tag.comment;
-            let tagUniqueId = `${
-              tag.getSourceFile().fileName
-            }:${tag.getStart()}`;
+          for (let [{name, comment}, extension] of tagExtensionPairs) {
+            let tagUniqueId = `${sourceFileName}:${node.getStart()}:${name}`;
 
             let reason = extension(value, comment, this.context, tagUniqueId);
 
@@ -244,6 +264,7 @@ export class Validator {
     ) {
       for (let member of node.members) {
         // TODO: when is member.name undefined?
+        /* istanbul ignore else */
         if (member.name) {
           this.validateWithExtensions(member);
         }
@@ -254,6 +275,7 @@ export class Validator {
         node.typeName.getEnd(),
       );
 
+      /* istanbul ignore else */
       if (definitions) {
         let program = this.program;
 
@@ -300,7 +322,7 @@ export class Validator {
       this.languageService.getImplementationAtPosition(
         node.getSourceFile().fileName,
         node.name.getStart(),
-      ) || [];
+      ) || /* istanbul ignore next */ [];
 
     let validatorFilePath = this.validatorFilePath;
 
@@ -315,7 +337,9 @@ export class Validator {
           reference.textSpan.start,
         )!.parent;
 
-        return parent && isPropertyAssignment(parent) ? parent : undefined;
+        return parent && isPropertyAssignment(parent)
+          ? parent
+          : /* istanbul ignore next */ undefined;
       })
       .filter((assignment): assignment is PropertyAssignment => !!assignment)
       .map(assignment => JSON.parse(assignment.initializer.getText()));
