@@ -11,10 +11,12 @@
 | Category                                        | Complex Type | Extended Validation | Zero Build Setups | Performance                |
 | ----------------------------------------------- | ------------ | ------------------- | ----------------- | -------------------------- |
 | Tiva                                            | Yes          | Yes                 | Yes               | In many case not tolerable |
-| [ajv](https://github.com/epoberezkin/ajv) alike | Yes          | No                  | No                | Much much better than Tiva |
-| [io-ts](https://github.com/gcanti/io-ts) alike  | Limited\*    | Yes                 | Yes               | Much much better than Tiva |
+| [ajv](https://github.com/epoberezkin/ajv) alike | Yes          | Yes\*               | No                | Much much better than Tiva |
+| [io-ts](https://github.com/gcanti/io-ts) alike  | Limited\*\*  | Yes                 | Yes               | Much much better than Tiva |
 
-\* We have many types that are evaluated from pure type declarations, and those type declarations are used in other part of our project for type checking and intellisense purpose. And aside from that, writing complex type with those tools will not be as pleasant as natural type declarations.
+\* Extra efforts might be needed for extended validation to work with TypeScript declarations.
+
+\*\* We have many types that are evaluated from pure type declarations, and those type declarations are used in other part of our project for type checking and intellisense purpose. And aside from that, writing complex type with those tools will not be as pleasant as natural type declarations.
 
 ## Usage
 
