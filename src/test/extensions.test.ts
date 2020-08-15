@@ -1,17 +1,19 @@
 import * as Path from 'path';
 
-import {Validator} from '../../bld/library';
+import {Validator} from '../library';
 
-let validatorGlobal = new Validator({
-  project: Path.join(__dirname, 'cases/extensions-case-1'),
+import {CASES_DIR} from './@constants';
+
+const validatorGlobal = new Validator({
+  project: Path.join(CASES_DIR, 'extensions-case-1'),
   compilerOptions: {
     strict: true,
     types: ['./index'],
   },
 });
 
-let validatorModule = new Validator({
-  project: Path.join(__dirname, 'cases/extensions-case-2'),
+const validatorModule = new Validator({
+  project: Path.join(CASES_DIR, 'extensions-case-2'),
   extensions: {
     custom(value) {
       return value === 'custom'

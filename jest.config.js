@@ -1,10 +1,6 @@
-// @ts-check
-
-/** @type {import('@jest/types/build/Config').InitialOptions} */
 module.exports = {
-  preset: 'ts-jest',
   testEnvironment: 'node',
-  testMatch: ['<rootDir>src/test/*.test.ts'],
+  testMatch: ['<rootDir>bld/test/*.test.js'],
   collectCoverage: true,
   coverageThreshold: {
     global: {

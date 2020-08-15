@@ -1,4 +1,4 @@
-import {ValidatorOptions, GeneralValidatorTypeOptions} from './validator';
+import {GeneralValidatorTypeOptions, ValidatorOptions} from './validator';
 
 export type Request = InitializeRequest | DiagnoseRequest;
 

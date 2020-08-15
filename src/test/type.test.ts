@@ -1,17 +1,19 @@
 import * as Path from 'path';
 
-import {Validator} from '../../bld/library';
+import {Validator} from '../library';
 
-let validatorGlobal = new Validator();
+import {CASES_DIR} from './@constants';
 
-let validatorModule = new Validator({
-  project: Path.join(__dirname, 'cases/module-type-case-1'),
+const validatorGlobal = new Validator();
+
+const validatorModule = new Validator({
+  project: Path.join(CASES_DIR, 'module-type-case-1'),
 });
 
 it('should diagnose global types', () => {
-  expect(
-    validatorGlobal.diagnose('string[]', ['hello', 'world']),
-  ).toMatchInlineSnapshot(`undefined`);
+  expect(validatorGlobal.diagnose('string', 'hello')).toMatchInlineSnapshot(
+    `undefined`,
+  );
 
   expect(
     validatorGlobal.diagnose("['hello', 'world']", ['hello', 'world']),
@@ -23,6 +25,13 @@ it('should diagnose global types', () => {
       bar: 123,
     }),
   ).toMatchInlineSnapshot(`undefined`);
+
+  expect(validatorGlobal.diagnose('string', 123)).toMatchInlineSnapshot(`
+    Array [
+      "Diagnostic value path: (root)
+      Type '123' is not assignable to type 'string'.",
+    ]
+  `);
 
   expect(validatorGlobal.diagnose('string[]', ['hello', 'world', 1]))
     .toMatchInlineSnapshot(`

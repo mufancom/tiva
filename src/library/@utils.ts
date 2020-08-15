@@ -1,13 +1,13 @@
+import {getTokenAtPosition} from 'tsutils';
 import {
   Diagnostic,
-  isVariableDeclaration,
-  isArrayLiteralExpression,
   Expression,
-  isPropertyAssignment,
-  flattenDiagnosticMessageText,
   Node,
+  flattenDiagnosticMessageText,
+  isArrayLiteralExpression,
+  isPropertyAssignment,
+  isVariableDeclaration,
 } from 'typescript/lib/tsserverlibrary';
-import {getTokenAtPosition} from 'tsutils';
 
 export function formatDiagnostic(diagnostic: Diagnostic): string {
   let file = diagnostic.file!;
@@ -26,17 +26,20 @@ export function getValuePathMessage(node: Node | undefined): string {
   while (node && !isVariableDeclaration(node)) {
     let parentNode = node.parent;
 
-    if (isArrayLiteralExpression(parentNode)) {
-      let index = parentNode.elements.indexOf(node as Expression);
-      path.unshift(`[${index}]`);
-    } else if (isPropertyAssignment(parentNode)) {
-      path.unshift(`[${parentNode.name.getText()}]`);
+    /* istanbul ignore else */
+    if (parentNode) {
+      if (isArrayLiteralExpression(parentNode)) {
+        let index = parentNode.elements.indexOf(node as Expression);
+        path.unshift(`[${index}]`);
+      } else if (isPropertyAssignment(parentNode)) {
+        path.unshift(`[${parentNode.name.getText()}]`);
+      }
     }
 
     node = parentNode;
   }
 
-  return ['Diagnostic value path: ', ...path].join('');
+  return `Diagnostic value path: ${path.join('') || '(root)'}`;
 }
 
 export function indent(text: string, indent: string): string {

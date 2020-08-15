@@ -4,8 +4,8 @@ import {Worker} from 'worker_threads';
 
 import {ExtendableError} from 'extendable-error';
 
-import {InitializeRequest, Response, DiagnoseRequest} from './@worker-messages';
-import {ValidatorOptions, GeneralValidatorTypeOptions} from './validator';
+import {DiagnoseRequest, InitializeRequest, Response} from './@worker-messages';
+import {GeneralValidatorTypeOptions, ValidatorOptions} from './validator';
 
 export interface TivaOptions extends ValidatorOptions {}
 

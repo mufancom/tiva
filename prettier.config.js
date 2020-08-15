@@ -1,1 +1,1 @@
-module.exports = require('@magicspace/configs/prettier');
+module.exports = require('@mufan/code/prettier');

@@ -1,8 +1,16 @@
 import * as Path from 'path';
 
-import {getTokenAtPosition, getJsDoc} from 'tsutils';
 import {Dict} from 'tslang';
+import {getJsDoc, getTokenAtPosition} from 'tsutils';
 import {
+  Expression,
+  LanguageService,
+  Node,
+  Program,
+  PropertyAssignment,
+  ScriptKind,
+  SourceFile,
+  VariableStatement,
   isArrayTypeNode,
   isClassDeclaration,
   isConditionalTypeNode,
@@ -17,15 +25,7 @@ import {
   isTypeLiteralNode,
   isTypeReferenceNode,
   isUnionTypeNode,
-  LanguageService,
-  Node,
-  Program,
-  PropertyAssignment,
-  ScriptKind,
   server,
-  SourceFile,
-  VariableStatement,
-  Expression,
 } from 'typescript/lib/tsserverlibrary';
 
 import {logger, serverHost} from '../@typescript';

@@ -1,4 +1,4 @@
-import {SubPatterns, Sub} from './@sub';
+import {Sub, SubPatterns} from './@sub';
 
 export interface Patterns {
   /**

@@ -1,10 +1,10 @@
 import {parentPort} from 'worker_threads';
 
 import {
-  Request,
   DiagnoseResponse,
   ErrorResponse,
   InitializeResponse,
+  Request,
 } from './@worker-messages';
 import {Validator} from './validator';
 

@@ -1,6 +1,6 @@
-import {Tiva} from '../../bld/library';
+import {Tiva} from '../library';
 
-let tiva = new Tiva();
+const tiva = new Tiva();
 
 it('should validate', async () => {
   await expect(tiva.validate('string[]', ['abc'])).resolves.toBeUndefined();

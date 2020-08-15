@@ -1,4 +1,4 @@
-import {isUUID} from 'validator';
+import Validator from 'validator';
 
 import {ValidatorExtensions} from './validator';
 
@@ -31,7 +31,7 @@ export const builtInExtensions: ValidatorExtensions<BuiltInValidatorExtensionCon
       return undefined;
     }
 
-    if (!isUUID(value, version)) {
+    if (!Validator.isUUID(value, version)) {
       return `Value ${JSON.stringify(value)} is not a valid UUID${
         version && version !== 'all' ? ` (v${version})` : ''
       }`;
