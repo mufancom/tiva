@@ -26,5 +26,8 @@
     "rules": {
       "import/no-deprecated": "off"
     }
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
   }
 }

@@ -26,17 +26,19 @@ it('should diagnose global types', () => {
 
   expect(validatorGlobal.diagnose('string[]', ['hello', 'world', 1]))
     .toMatchInlineSnapshot(`
-          Array [
-            "Type 'number' is not assignable to type 'string'.",
-          ]
-        `);
+    Array [
+      "Diagnostic value path: [2]
+      Type 'number' is not assignable to type 'string'.",
+    ]
+  `);
 
   expect(validatorGlobal.diagnose("['hello', 'world']", ['hello', 'tiva']))
     .toMatchInlineSnapshot(`
-          Array [
-            "Type '\\"tiva\\"' is not assignable to type '\\"world\\"'.",
-          ]
-        `);
+    Array [
+      "Diagnostic value path: [1]
+      Type '\\"tiva\\"' is not assignable to type '\\"world\\"'.",
+    ]
+  `);
 
   expect(
     validatorGlobal.diagnose('{foo: string; bar: number}', {
@@ -44,11 +46,13 @@ it('should diagnose global types', () => {
       bar: 'abc',
     }),
   ).toMatchInlineSnapshot(`
-          Array [
-            "Type 'number' is not assignable to type 'string'.",
-            "Type 'string' is not assignable to type 'number'.",
-          ]
-        `);
+    Array [
+      "Diagnostic value path: [\\"foo\\"]
+      Type 'number' is not assignable to type 'string'.",
+      "Diagnostic value path: [\\"bar\\"]
+      Type 'string' is not assignable to type 'number'.",
+    ]
+  `);
 });
 
 it('should diagnose module types', async () => {
@@ -91,11 +95,14 @@ it('should diagnose module types', async () => {
       },
     ),
   ).toMatchInlineSnapshot(`
-          Array [
-            "Object literal may only specify known properties, and '\\"conditionRight\\"' does not exist in type '{ conditionLeft: string; }'.",
-            "Type 'number' is not assignable to type 'string'.",
-          ]
-        `);
+    Array [
+      "Diagnostic value path: [\\"conditional\\"][\\"conditionRight\\"]
+      Type '{ conditionRight: number; }' is not assignable to type '{ conditionLeft: string; }'.
+        Object literal may only specify known properties, and '\\"conditionRight\\"' does not exist in type '{ conditionLeft: string; }'.",
+      "Diagnostic value path: [\\"array\\"][1]
+      Type 'number' is not assignable to type 'string'.",
+    ]
+  `);
 
   expect(
     validatorModule.diagnose(
@@ -115,9 +122,11 @@ it('should diagnose module types', async () => {
       },
     ),
   ).toMatchInlineSnapshot(`
-          Array [
-            "Property 'hello' is missing in type '{ world: false; }' but required in type 'Mapping<\\"hello\\" | \\"world\\", boolean>'.",
-            "Type '\\"mismatch\\"' is not assignable to type '\\"literal\\"'.",
-          ]
-        `);
+    Array [
+      "Diagnostic value path: [\\"mapping\\"]
+      Property 'hello' is missing in type '{ world: false; }' but required in type 'Mapping<\\"hello\\" | \\"world\\", boolean>'.",
+      "Diagnostic value path: [\\"tuple\\"][2]
+      Type '\\"mismatch\\"' is not assignable to type '\\"literal\\"'.",
+    ]
+  `);
 });

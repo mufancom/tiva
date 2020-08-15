@@ -1,6 +1,6 @@
 {
   "name": "tiva",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Expensive plain object type validator leverages TypeScript language service.",
   "license": "MIT",
   "repository": {
@@ -39,6 +39,7 @@
     "typescript": ">=3.8.0"
   },
   "dependencies": {
+    "extendable-error": "^0.1.7",
     "tslang": "^0.1.18",
     "tslib": "^1.10.0",
     "tsutils": "^3.17.1",

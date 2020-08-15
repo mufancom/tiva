@@ -2,6 +2,8 @@ import {EventEmitter} from 'events';
 import * as Path from 'path';
 import {Worker} from 'worker_threads';
 
+import {ExtendableError} from 'extendable-error';
+
 import {InitializeRequest, Response, DiagnoseRequest} from './@worker-messages';
 import {ValidatorOptions, GeneralValidatorTypeOptions} from './validator';
 
@@ -52,7 +54,7 @@ export class Tiva extends EventEmitter {
     let messages = await this.diagnose(type, object);
 
     if (messages) {
-      throw new Error(messages.join('\n'));
+      throw new ValidateError(messages);
     }
   }
 
@@ -106,5 +108,11 @@ export class Tiva extends EventEmitter {
         throw new Error('Unexpected diagnose response');
       }
     }
+  }
+}
+
+export class ValidateError extends ExtendableError {
+  constructor(readonly diagnostics: string[]) {
+    super('Type validation failed');
   }
 }

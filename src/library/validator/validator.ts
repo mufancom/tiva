@@ -25,9 +25,11 @@ import {
   server,
   SourceFile,
   VariableStatement,
+  Expression,
 } from 'typescript/lib/tsserverlibrary';
 
-import {logger, serverHost, getDeepestMessageText} from '../@typescript';
+import {logger, serverHost} from '../@typescript';
+import {formatDiagnostic, getValuePathMessage, indent} from '../@utils';
 
 import {builtInExtensions} from './@built-in-extensions';
 
@@ -146,7 +148,7 @@ export class Validator {
         `import {${type.match(/^[^.]+/)![0]}} from ${JSON.stringify(
           moduleSpecifier,
         )};`,
-      `export const __tiva: ${type} = ${JSON.stringify(value)};`,
+      `export const __tiva: ${type} = ${JSON.stringify(value, undefined, 2)};`,
     ]
       .filter((part): part is string => !!part)
       .join('\n');
@@ -165,7 +167,7 @@ export class Validator {
 
     let reasons = languageService
       .getSemanticDiagnostics(scriptInfo.fileName)
-      .map(message => getDeepestMessageText(message.messageText));
+      .map(diagnostic => formatDiagnostic(diagnostic));
 
     if (reasons.length) {
       return reasons;
@@ -238,20 +240,34 @@ export class Validator {
         .filter((pair): pair is [DocTag, ValidatorExtension] => !!pair[1]);
 
       if (tagExtensionPairs.length) {
-        let extensionReasons = this.extensionReasons;
-
         let sourceFileName = node.getSourceFile().fileName;
-        let values = this.findValuesByDefinition(node);
+        let valueInfos = this.findValuesByDefinition(node);
 
-        for (let value of values) {
+        for (let {node: valueNode, value} of valueInfos) {
+          let rawReasons: string[] = [];
+
           for (let [{name, comment}, extension] of tagExtensionPairs) {
             let tagUniqueId = `${sourceFileName}:${node.getStart()}:${name}`;
 
-            let reason = extension(value, comment, this.context, tagUniqueId);
+            let rawReason = extension(
+              value,
+              comment,
+              this.context,
+              tagUniqueId,
+            );
 
-            if (typeof reason === 'string') {
-              extensionReasons.push(reason);
+            if (typeof rawReason === 'string') {
+              rawReasons.push(rawReason);
             }
+          }
+
+          if (rawReasons.length) {
+            this.extensionReasons.push(
+              [
+                getValuePathMessage(valueNode),
+                indent(rawReasons.join('\n'), '  '),
+              ].join('\n'),
+            );
           }
         }
       }
@@ -317,7 +333,7 @@ export class Validator {
 
   private findValuesByDefinition(
     node: ts.PropertySignature | ts.PropertyDeclaration,
-  ): unknown[] {
+  ): FoundValueInfo[] {
     let references =
       this.languageService.getImplementationAtPosition(
         node.getSourceFile().fileName,
@@ -342,6 +358,16 @@ export class Validator {
           : /* istanbul ignore next */ undefined;
       })
       .filter((assignment): assignment is PropertyAssignment => !!assignment)
-      .map(assignment => JSON.parse(assignment.initializer.getText()));
+      .map(({initializer}) => {
+        return {
+          node: initializer,
+          value: JSON.parse(initializer.getText()),
+        };
+      });
   }
+}
+
+interface FoundValueInfo {
+  node: Expression;
+  value: unknown;
 }

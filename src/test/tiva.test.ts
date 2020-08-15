@@ -6,7 +6,7 @@ it('should validate', async () => {
   await expect(tiva.validate('string[]', ['abc'])).resolves.toBeUndefined();
 
   await expect(tiva.validate('string[]', [1])).rejects.toMatchInlineSnapshot(
-    `[Error: Type 'number' is not assignable to type 'string'.]`,
+    `[ValidateError: Type validation failed]`,
   );
 });
 
@@ -23,7 +23,8 @@ it('should diagnose', async () => {
 
   await expect(tiva.diagnose('string[]', [1])).resolves.toMatchInlineSnapshot(`
           Array [
-            "Type 'number' is not assignable to type 'string'.",
+            "Diagnostic value path: [0]
+            Type 'number' is not assignable to type 'string'.",
           ]
         `);
 });

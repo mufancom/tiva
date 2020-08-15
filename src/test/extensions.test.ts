@@ -46,13 +46,20 @@ it('should diagnose extensions defined in global types', () => {
     }),
   ).toMatchInlineSnapshot(`
     Array [
-      "Value \\"nope\\" does not match pattern @\\\\w+",
-      "Value \\"x123\\" does not match pattern ^\\\\d+$",
-      "Value \\"x456\\" does not match pattern ^\\\\d+$",
-      "Value \\"invalid\\" is not a valid UUID",
-      "Value \\"invalid\\" is not a valid UUID",
-      "Value \\"invalid\\" is not a valid UUID",
-      "Value \\"invalid\\" is not a valid UUID (v4)",
+      "Diagnostic value path: [\\"mention\\"]
+      Value \\"nope\\" does not match pattern @\\\\w+",
+      "Diagnostic value path: [\\"number\\"]
+      Value \\"x123\\" does not match pattern ^\\\\d+$",
+      "Diagnostic value path: [\\"maybeNumber\\"]
+      Value \\"x456\\" does not match pattern ^\\\\d+$",
+      "Diagnostic value path: [\\"uuid\\"]
+      Value \\"invalid\\" is not a valid UUID",
+      "Diagnostic value path: [\\"maybeUUID\\"]
+      Value \\"invalid\\" is not a valid UUID",
+      "Diagnostic value path: [\\"uuidAll\\"]
+      Value \\"invalid\\" is not a valid UUID",
+      "Diagnostic value path: [\\"uuid4\\"]
+      Value \\"invalid\\" is not a valid UUID (v4)",
     ]
   `);
 
@@ -120,14 +127,22 @@ it('should diagnose extensions defined in module types', () => {
     ),
   ).toMatchInlineSnapshot(`
     Array [
-      "Value \\"nope\\" does not match pattern @\\\\w+",
-      "Value \\"x123\\" does not match pattern ^\\\\d+$",
-      "Value \\"yoha\\" must be \\"custom\\"",
-      "Value \\"@#$\\" does not match pattern ^\\\\w+$",
-      "Duplicate value \\"fff\\"",
-      "Value \\" \\" does not match pattern ^\\\\S+$",
-      "Duplicate sub-value \\"xxx\\"",
-      "Duplicate sub-value \\"xxx\\"",
+      "Diagnostic value path: [\\"mention\\"]
+      Value \\"nope\\" does not match pattern @\\\\w+",
+      "Diagnostic value path: [\\"number\\"]
+      Value \\"x123\\" does not match pattern ^\\\\d+$",
+      "Diagnostic value path: [\\"custom\\"]
+      Value \\"yoha\\" must be \\"custom\\"",
+      "Diagnostic value path: [\\"subs\\"][0][\\"id\\"]
+      Value \\"@#$\\" does not match pattern ^\\\\w+$",
+      "Diagnostic value path: [\\"subs\\"][2][\\"id\\"]
+      Duplicate value \\"fff\\"",
+      "Diagnostic value path: [\\"subs\\"][0][\\"value\\"]
+      Value \\" \\" does not match pattern ^\\\\S+$",
+      "Diagnostic value path: [\\"subs\\"][2][\\"value\\"]
+      Duplicate sub-value \\"xxx\\"",
+      "Diagnostic value path: [\\"subs\\"][2][\\"value2\\"]
+      Duplicate sub-value \\"xxx\\"",
     ]
   `);
 });
