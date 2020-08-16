@@ -43,3 +43,7 @@ it('should error', async () => {
     `[Error: A regular expression pattern is required for extension \`@pattern\`]`,
   );
 });
+
+it('should dispose', async () => {
+  await tiva.dispose();
+});

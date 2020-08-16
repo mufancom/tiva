@@ -10,5 +10,4 @@ module.exports = {
       statements: 100,
     },
   },
-  forceExit: true,
 };

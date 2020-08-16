@@ -80,6 +80,10 @@ export class Tiva extends EventEmitter {
     return this.nextRequest();
   }
 
+  async dispose(): Promise<number> {
+    return this.worker.terminate();
+  }
+
   private nextRequest<T>(): Promise<T> {
     return new Promise((resolve, reject) => {
       this.requestPromiseHandlers.push([resolve, reject]);
