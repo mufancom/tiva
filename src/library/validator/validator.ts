@@ -319,8 +319,8 @@ export class Validator {
     } else if (isArrayTypeNode(node)) {
       this.validateWithExtensions(node.elementType);
     } else if (isTupleTypeNode(node)) {
-      for (let childType of node.elementTypes) {
-        this.validateWithExtensions(childType);
+      for (let childNode of node.elements) {
+        this.validateWithExtensions(childNode);
       }
     } else if (isConditionalTypeNode(node)) {
       this.validateWithExtensions(node.trueType);
