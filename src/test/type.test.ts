@@ -29,7 +29,7 @@ it('should diagnose global types', () => {
   expect(validatorGlobal.diagnose('string', 123)).toMatchInlineSnapshot(`
     Array [
       "Diagnostic value path: (root)
-      Type '123' is not assignable to type 'string'.",
+      Type 'number' is not assignable to type 'string'.",
     ]
   `);
 
